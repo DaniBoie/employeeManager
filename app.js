@@ -109,14 +109,14 @@ const updateRole = () => {
         {
           type: 'list',
           name: 'role',
-          message: 'What role do they have?',
+          message: 'What new role should be given?',
           choices: roles
           
         }
       ])
       .then(res => {
         db.query('UPDATE employee SET role_id = ? WHERE id = ?', [res.role, res.employee])
-        console.log('Updated!')
+        console.log('Updated Employee Role!')
         landingPrompt()
       })
       .catch(err => {console.log(err)})
@@ -126,21 +126,65 @@ const updateRole = () => {
 
 const addDepartment = () => {
   console.log('Adding Department')
+  inquirer
+  .prompt([
+    {
+      type: 'input',
+      name: 'name',
+      message: 'Name of new department:'
+    }
+  ])
+  .then(department => {
+    db.query('INSERT INTO department SET ?', department, (err) => {
+      if (err) { console.log(err) }
+      console.log('Department Created!')
+      landingPrompt()
+  })
+  })
+  .catch(err => {console.log(err)})
 }
 
 const viewDepartments = () => {
   console.log('Viewing Departments')
   db.query(`
-  SELECT department.name AS Departments
+  SELECT department.id, department.name AS Departments
   FROM department
   `, (err, res) => {
     if (err) {console.log(err)}
     console.table(res)
+    landingPrompt()
   })
 }
 
 const addRole = () => {
   console.log('Adding Role')
+  inquirer
+    .prompt([
+      {
+        type: 'input',
+        name: 'title',
+        message: 'Name of new role:'
+      },
+      {
+        type: 'number',
+        name: 'salary',
+        message: 'Salary of new role:'
+      },
+      {
+        type: 'number',
+        name: 'department_id',
+        message: 'Department ID of new role:'
+      },
+
+    ])
+    .then(role => {
+      db.query('INSERT INTO role SET ?', role, (err) => {
+        if (err) { console.log(err) }
+        console.log('Role Created!')
+        landingPrompt()
+      })
+    })
+    .catch(err => { console.log(err) })
 }
 
 const viewRoles = () => {
@@ -153,17 +197,36 @@ const viewRoles = () => {
   `, (err, res) => {
     if (err){console.log(err)}
     console.table(res)
+    landingPrompt()
   })
 }
-
-
 function landingPrompt() {
+  inquirer
+  .prompt([
+    {
+      type: 'list',
+      name: 'redo',
+      message: 'Start another action?',
+      choices: ['Yes', 'No']
+    }
+  ])
+  .then(res => {
+    if (res.redo === 'Yes'){
+      start()
+    }else {
+      process.exit()
+    }
+  })
+  .catch(err => {console.log(err)})
+}
+
+function start() {
 inquirer
   .prompt([
     {
       type: 'list',
       name: 'option',
-      message: 'Would you like to add, view, or edit?',
+      message: 'What action would you like to perform?',
       choices: [
         {
           name: 'Add An Employee',
