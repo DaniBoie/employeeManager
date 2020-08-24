@@ -53,6 +53,7 @@ const addEmployee = () => {
         db.query('INSERT INTO employee SET ?', employee, (err) => {
           if (err){console.log(err)}
           console.log('Employee Created!')
+          landingPrompt()
         })
       })
       .catch(err => console.log(err))
@@ -74,6 +75,7 @@ const viewEmployees = () => {
   `, (err, employees) => {
     if (err) {console.log(err)}
     console.table(employees)
+      landingPrompt()
   })
 }
 
@@ -97,6 +99,8 @@ const viewRoles = () => {
   console.log('Viewing Roles')
 }
 
+
+function landingPrompt() {
 inquirer
   .prompt([
     {
@@ -162,3 +166,5 @@ inquirer
     }
   })
   .catch(error => {console.log(error)})
+}
+landingPrompt();
