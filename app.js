@@ -81,6 +81,47 @@ const viewEmployees = () => {
 
 const updateRole = () => {
   console.log('Updating Employees')
+  db.query('SELECT * FROM employee', (err, employees) => {
+    if (err){console.log(err)}
+
+    employees = employees.map(employee => ({
+      name: `${employee.first_name} ${employee.last_name}`,
+      value: employee.id
+    }))
+
+    db.query('SELECT * FROM role', (err, roles) => {
+      if (err) { console.log(err) }
+
+      roles = roles.map(role => ({
+        name: role.title,
+        value: role.id
+      }))
+    
+
+    inquirer
+      .prompt([
+        {
+          type: 'list',
+          name: 'employee',
+          message: 'Which employee would you like to change?',
+          choices: employees
+        },
+        {
+          type: 'list',
+          name: 'role',
+          message: 'What role do they have?',
+          choices: roles
+          
+        }
+      ])
+      .then(res => {
+        db.query('UPDATE employee SET role_id = ? WHERE id = ?', [res.role, res.employee])
+        console.log('Updated!')
+        landingPrompt()
+      })
+      .catch(err => {console.log(err)})
+  })
+})
 }
 
 const addDepartment = () => {
@@ -89,6 +130,13 @@ const addDepartment = () => {
 
 const viewDepartments = () => {
   console.log('Viewing Departments')
+  db.query(`
+  SELECT department.name AS Departments
+  FROM department
+  `, (err, res) => {
+    if (err) {console.log(err)}
+    console.table(res)
+  })
 }
 
 const addRole = () => {
@@ -97,6 +145,15 @@ const addRole = () => {
 
 const viewRoles = () => {
   console.log('Viewing Roles')
+  db.query(`
+  SELECT role.title AS Title, role.salary AS Salary, department.name AS Department
+  FROM role
+  LEFT JOIN department
+  ON role.department_id = department.id
+  `, (err, res) => {
+    if (err){console.log(err)}
+    console.table(res)
+  })
 }
 
 
